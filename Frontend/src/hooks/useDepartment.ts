@@ -7,25 +7,52 @@ import {
   deleteDepartment,
 } from "../api/departmentApi";
 
-import type { Department } from "../types/department";
+import type { Department,  DepartmentPagination} from "../types/department";
 
-export const useDepartments = () => {
+interface useDepartmentParams{
+  status?: "Active" | "Inactive";
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+export const useDepartments = ({ page, limit, search, status }: useDepartmentParams = { page: 1, limit: 10, search: "",status:"Active" }) => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const[pagination, setPagination] = useState<DepartmentPagination>({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+  });
   const fetchDepartments = useCallback(async () => {
     try {
       setLoading(true);
 
-      const data = await getDepartments();
-
-      setDepartments(data);
+      const data = await getDepartments(
+        {
+         page,
+         limit,
+         search,         
+         status,
+        }
+      );
+      console.log("Fetched departments:", data);
+if (data)
+{
+  setDepartments(data.departments ?? []  );
+  setPagination(data.pagination ?? {
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+  });
+}
     } catch (error) {
       console.error("Failed to fetch departments:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, limit, search,status]);
 
   useEffect(() => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -36,11 +63,10 @@ export const useDepartments = () => {
     departmentData: Omit<Department, "_id">
   ) => {
     const department = await createDepartment(departmentData);
-
-    setDepartments((previous) => [
-      department,
-      ...previous,
-    ]);
+  if (department) {
+    fetchDepartments();
+  }
+  return department;
   };
 
   const editDepartment = async (
@@ -52,11 +78,10 @@ export const useDepartments = () => {
       departmentData
     );
 
-    setDepartments((previous) =>
-      previous.map((item) =>
-        item._id === id ? department : item
-      )
-    );
+    if (department) {
+      fetchDepartments();
+    }
+    return department;
   };
 
   const removeDepartment = async (id: string) => {
@@ -74,5 +99,6 @@ export const useDepartments = () => {
     addDepartment,
     editDepartment,
     removeDepartment,
+    pagination
   };
 };

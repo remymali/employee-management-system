@@ -1,14 +1,14 @@
-import { useMemo, useState } from "react";
+// import { useMemo, useState } from "react";
 import {
   Button,
   Card,
-  Input,
+  // Input,
   Space,
   Table,
 } from "antd";
 import {
   DownloadOutlined,
-  SearchOutlined,
+  // SearchOutlined,
 } from "@ant-design/icons";
 import type {
   ColumnsType,
@@ -48,24 +48,24 @@ const GenericTable = <T extends object>({
   pagination,
   onPageChange,
 }: GenericTableProps<T>) => {
-  const [searchText, setSearchText] = useState("");
+  // const [searchText, setSearchText] = useState("");
 
   // Client-side search
-  const filteredData = useMemo(() => {
-    if (!searchText.trim()) {
-      return data;
-    }
+  // const filteredData = useMemo(() => {
+  //   if (!searchText.trim()) {
+  //     return data;
+  //   }
 
-    const searchValue = searchText.toLowerCase();
+  //   const searchValue = searchText.toLowerCase();
 
-    return data.filter((record) =>
-      Object.values(record).some((value) =>
-        String(value ?? "")
-          .toLowerCase()
-          .includes(searchValue)
-      )
-    );
-  }, [data, searchText]);
+  //   return data.filter((record) =>
+  //     Object.values(record).some((value) =>
+  //       String(value ?? "")
+  //         .toLowerCase()
+  //         .includes(searchValue)
+  //     )
+  //   );
+  // }, [data, searchText]);
 
   // Pagination
   const tablePagination: TablePaginationConfig | false =
@@ -80,7 +80,7 @@ const GenericTable = <T extends object>({
 
   // Export CSV
   const handleExport = () => {
-    if (!filteredData.length) {
+    if (!data || data.length === 0) {
       return;
     }
 
@@ -88,7 +88,7 @@ const GenericTable = <T extends object>({
       .map((column) => String(column.title ?? ""))
       .join(",");
 
-    const rows = filteredData.map((record) =>
+    const rows = data.map((record) =>
       columns
         .map((column) => {
           if (
@@ -140,7 +140,7 @@ const GenericTable = <T extends object>({
             marginBottom: 16,
           }}
         >
-          {searchable ? (
+          {/* {searchable ? (
             <Input
               placeholder="Search..."
               prefix={<SearchOutlined />}
@@ -153,7 +153,7 @@ const GenericTable = <T extends object>({
             />
           ) : (
             <div />
-          )}
+          )} */}
 
           {exportable && (
             <Button
@@ -167,7 +167,7 @@ const GenericTable = <T extends object>({
       )}
 
       <Table<T>
-        dataSource={filteredData}
+        dataSource={data}
         columns={columns}
         loading={loading}
         rowKey={rowKey}

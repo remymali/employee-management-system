@@ -1,12 +1,12 @@
 import { IDepartment} from "../entities/department.model";
-import { createDepartment, getDepartments, getDepartmentById,updateDepartment,deleteDepartment } from "../../services/department.service";
+import { createDepartment, getDepartments, getDepartmentById,updateDepartment,deleteDepartment, GetDepartmentParams, GetDepartmentsResult, GetDepartmentPagination } from "../../services/department.service";
 
 export const createDepartmentUseCase = async (departmentData: Partial<IDepartment>):Promise<IDepartment>=>{
     return  createDepartment(departmentData);
 }
 
-export const getDepartmentsUseCase = async ():Promise<IDepartment[]>=>{
-    return  getDepartments();
+export const getDepartmentsUseCase = async ({ page=1, limit=10, search="", department, status }: GetDepartmentParams={ page: 1, limit: 10 }):Promise<GetDepartmentsResult>=>{
+    return  getDepartments({ page, limit, search, department, status });
 }
 
 export const getDepartmentByIdUseCase = async (id: any):Promise<IDepartment | null>=>{
