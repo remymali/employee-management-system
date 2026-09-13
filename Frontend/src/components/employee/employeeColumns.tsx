@@ -8,6 +8,7 @@ interface EmployeeColumnsProps {
     onDelete: (employee: Employee) => void;
 }
 
+
 export const getEmployeeColumns = (
   {
     onEdit,

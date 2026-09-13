@@ -37,7 +37,7 @@ const Employees: React.FC = () => {
     search: searchText,
     department: selectedDepartment || '',
   });
-
+const [pageSize, setPageSize] = useState(10);
   const handleSearchChange = (value: string) => {
     setSearchText(value);
     setCurrentPage(1);
@@ -49,6 +49,7 @@ const Employees: React.FC = () => {
   };
    const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setPageSize(pageSize);
   };
   const handleAddEmployee = () => {
     setEditingEmployee(null);

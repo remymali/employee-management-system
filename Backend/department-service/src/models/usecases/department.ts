@@ -9,6 +9,7 @@ export const getDepartmentsUseCase = async ({ page=1, limit=10, search="", depar
     return  getDepartments({ page, limit, search, department, status });
 }
 
+
 export const getDepartmentByIdUseCase = async (id: any):Promise<IDepartment | null>=>{
    return  getDepartmentById(id);
 }

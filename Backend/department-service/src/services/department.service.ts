@@ -7,7 +7,7 @@ export interface GetDepartmentParams {
   limit?: number;
   search?: string;
   department?: string;
-  status?: "Active" | "Inactive";
+  status?: string;
 }
 
 export interface GetDepartmentPagination {
@@ -31,11 +31,14 @@ export const createDepartment = async (
 
 export const getDepartments = async ({ page=1, limit=10, search="", department, status }: GetDepartmentParams={ page: 1, limit: 10 }): Promise<GetDepartmentsResult> => {
   const query: Record<string, unknown> = {};
+  const searchValue = search.trim();
 
-  if (search.trim()) {
+  console.log("SEARCH RECEIVED:", searchValue);
+  if (searchValue) {
     query.$or = [
-      { name: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } }
+      { name: { $regex: searchValue, $options: "i" } },
+      { description: { $regex: searchValue, $options: "i" } },
+      { departmentId: { $regex: searchValue, $options: "i" } }
     ];
   }
 

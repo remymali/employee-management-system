@@ -3,7 +3,15 @@ import {Request, Response} from "express";
 import {createDepartmentUseCase, deleteDepartmentUseCase, getDepartmentsUseCase, getDepartmentByIdUseCase, updateDepartmentUseCase} from "../models/usecases/department";
 
 export const getAllDepartments = async (request: Request, response: Response) => {
-    const departments = await getDepartmentsUseCase();
+    const { page, limit, search, department, status } = request.query as {
+        page?: string;
+        limit?: string;
+        search?: string;
+        department?: string;
+        status?: string;
+    };
+    console.log("Received query parameters:", { page, limit, search, department, status });
+    const departments = await getDepartmentsUseCase({ page: page ? Number(page) : 1, limit: limit ? Number(limit) : 10, search: search ?? "", department: department ?? undefined, status: status ?? undefined });
     return response.status(200).json({
         status: "success",
         data: departments,   

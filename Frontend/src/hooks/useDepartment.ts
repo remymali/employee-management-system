@@ -10,7 +10,7 @@ import {
 import type { Department,  DepartmentPagination} from "../types/department";
 
 interface useDepartmentParams{
-  status?: "Active" | "Inactive";
+  status?: string;
   page?: number;
   limit?: number;
   search?: string;

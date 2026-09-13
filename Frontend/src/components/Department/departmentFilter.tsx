@@ -9,16 +9,19 @@ import { SearchOutlined } from '@ant-design/icons';
 
 interface departmentFiltersProps {
   search: string;
-  department?: string;
+  // department?: string;
+  status?: string;
   onSearchChange: (value: string) => void;
-  onDepartmentChange?: (value: string | undefined) => void;
+  // onDepartmentChange?: (value: string | undefined) => void;
+  onStatusChange?: (value: string | undefined) => void;
 }
 
 const departmentFilters = ({
   search,
-  department,
+  status,
   onSearchChange,
-  onDepartmentChange,
+  // onDepartmentChange,
+  onStatusChange, 
 }: departmentFiltersProps) => {
   return (
     <Card style={{ marginBottom: 20 }}>
@@ -31,7 +34,7 @@ const departmentFilters = ({
           onChange={(e) => onSearchChange(e.target.value)}
         />
 
-        <Select
+        {/* <Select
           placeholder="Select Department"
           style={{ width: 200 }}
           allowClear
@@ -55,7 +58,25 @@ const departmentFilters = ({
               label: 'Marketing',
             },
           ]}
+        /> */}
+        <Select
+          placeholder="Select Status"
+          style={{ width: 200 }}
+          allowClear
+          value={status}
+          onChange={onStatusChange}
+          options={[
+            {
+              value: 'Active',
+              label: 'Active',
+            },            
+            {
+              value: 'Inactive',
+              label: 'Inactive',
+            },
+          ]}
         />
+         
       </Space>
     </Card>
   );

@@ -18,11 +18,12 @@ export type DepartmentFormValues =
   Omit<Department, "_id">;
 
 interface DepartmentFormProps {
-  initialValues?: DepartmentFormValues;
+  initialValues?: DepartmentFormValues | null;
   onSubmit: (
     values: DepartmentFormValues
   ) => Promise<void>;
   submitText: string;
+  loading: boolean;
 }
 
 const validationSchema = Yup.object({
@@ -51,15 +52,17 @@ const defaultValues: DepartmentFormValues = {
 };
 
 const DepartmentForm: React.FC<DepartmentFormProps> = ({
-  initialValues = defaultValues,
+  initialValues,
   onSubmit,
   submitText,
+  loading=false,
 }) => {
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={initialValues ?? defaultValues}
       validationSchema={validationSchema}
       enableReinitialize
+      loading={loading}
       onSubmit={onSubmit}
     >
       {({

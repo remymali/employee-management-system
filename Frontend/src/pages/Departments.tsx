@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Spin, Button, message, Modal } from "antd";
+import { Typography, Spin, Button, message, Drawer } from "antd";
 
 import { useDepartments } from "../hooks/useDepartment";
 import DepartmentForm,
@@ -13,6 +13,21 @@ const { Title } = Typography;
 
 const Departments: React.FC = () => {
   const [searchText, setSearchText] = React.useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = React.useState(searchText);
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText]);
+  const handleSearchChange = (value: string) => {
+      setSearchText(value);
+      setCurrentPage(1);
+    }
+  // const [selectedDepartment, setSelectedDepartment] = React.useState<string | undefined>(undefined);
+  const [selectedStatus, setSelectedStatus] = React.useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
   const {
@@ -22,41 +37,74 @@ const Departments: React.FC = () => {
     editDepartment,
     removeDepartment,
     pagination,
-  } = useDepartments({ page: currentPage, limit: pageSize, search: searchText });
-console.log("Departments data:", departments);
+  } = useDepartments({ page: currentPage, limit: pageSize, search: debouncedSearchText, status: selectedStatus || "Active" });
+// console.log("Departments data:", departments);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [editingDepartment, setEditingDepartment] = React.useState<Department | null>(null);
+  const[formLoading, setFormLoading] = React.useState(false);
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     setPageSize(pageSize || 10);
   };
-    const handleSearchChange = (value: string) => {
-    setSearchText(value);
+    
+  const handleStatusChange = (value: string | undefined) => {
+    setSelectedStatus(value);
     setCurrentPage(1);
   };
-  const handleCreate = async (values: DepartmentFormValues) => {
-    try {
+  // const handleDepartmentChange = (value: string | undefined) => {
+  //   setSelectedDepartment(value);
+  //   setCurrentPage(1);
+  // }
+  const handleFormSubmit = async (
+  values: DepartmentFormValues
+) => {
+  try {
+    setFormLoading(true);
+
+    if (editingDepartment) {
+      await editDepartment(
+        editingDepartment._id,
+        values
+      );
+
+      message.success(
+        "Department updated successfully"
+      );
+    } else {
       await addDepartment(values);
 
       message.success(
         "Department created successfully"
       );
-
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error(
-        "Create department failed:",
-        error
-      );
-
-      message.error(
-        "Failed to create department"
-      );
     }
-  };
 
-  const handleEditDepartment = async (department: Department) => {
-    await editDepartment(department._id, department);
-  };
+    setIsModalOpen(false);
+    setEditingDepartment(null);
+  } catch (error) {
+    console.error(
+      "Department save failed:",
+      error
+    );
+
+    message.error(
+      editingDepartment
+        ? "Failed to update department"
+        : "Failed to create department"
+    );
+  } finally {
+    setFormLoading(false);
+  }
+};
+
+const handleEditDepartment = (
+  department: Department
+) => {
+ 
+console.log("Editing department:", department);
+
+  setEditingDepartment(department );
+  setIsModalOpen(true);
+};  
 
   const handleDeleteDepartment = async(departmentId: string) => {
     await removeDepartment(departmentId);
@@ -70,29 +118,6 @@ console.log("Departments data:", departments);
       handleDeleteDepartment(departmentId);
     },
   });
-  // const columns = [
-  //   {
-  //     title: "Department ID",
-  //     dataIndex: "departmentId",
-  //     key: "departmentId",
-  //   },
-  //   {
-  //     title: "Name",
-  //     dataIndex: "name",
-  //     key: "name",
-  //   },
-  //   {
-  //     title: "Description",
-  //     dataIndex: "description",
-  //     key: "description",
-  //   },
-  //   {
-  //     title: "Status",
-  //     dataIndex: "status",
-  //     key: "status",
-  //   },
-  // ];
-
   return (
     <div>
       <div style={{
@@ -109,7 +134,11 @@ console.log("Departments data:", departments);
         <Button
           type="primary"
           onClick={() =>
-            setIsModalOpen(true)
+          {
+             setEditingDepartment(null);
+             setIsModalOpen(true)
+          }
+            
           }
         >
           Add Department
@@ -118,6 +147,10 @@ console.log("Departments data:", departments);
       <DepartmentFilters
         search={searchText}
         onSearchChange={handleSearchChange}
+        status={selectedStatus}
+        onStatusChange={handleStatusChange}
+        // department={selectedDepartment}
+        // onDepartmentChange={handleDepartmentChange}
       />
       {loading ? (
         <Spin />
@@ -128,8 +161,8 @@ console.log("Departments data:", departments);
           loading={loading}
           pagination={{
             page: pagination?.page ?? 1,
-    limit: pagination?.limit ?? 10,
-    total: pagination?.total ?? 0,
+            limit: pagination?.limit ?? 10,
+            total: pagination?.total ?? 0,
           }}
           onPageChange={handlePageChange}
           searchable
@@ -138,15 +171,40 @@ console.log("Departments data:", departments);
       )}
 
     
-<Modal
-  title="Add Department"
+<Drawer
+  title={
+    editingDepartment
+      ? "Edit Department"
+      : "Add Department"
+  }
+  placement="right"
+  width={420}
   open={isModalOpen}
-  onCancel={() => setIsModalOpen(false)}
-  footer={null}
+  onClose={() => {
+    setIsModalOpen(false);
+    setEditingDepartment(null);
+  }}
   destroyOnHidden
 >
-  <DepartmentForm onSubmit={handleCreate} submitText="Create Department" />
-</Modal>
+  <DepartmentForm
+    initialValues={
+      editingDepartment
+        ? {
+            departmentId: editingDepartment.departmentId,
+            name: editingDepartment.name,
+            description:
+              editingDepartment.description ?? "",
+            status: editingDepartment.status,
+          }
+        : undefined
+    }
+    onSubmit={handleFormSubmit}
+    loading={formLoading}
+    submitText={
+      editingDepartment ? "Update" : "Create"
+    }
+  />
+</Drawer>
 
       </div >
     
