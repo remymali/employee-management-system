@@ -5,10 +5,13 @@ export interface Employee {
   lastName: string;
   email: string;
   phone: string;
-  department: string;
-  designation: string;
-  joiningDate: string;
+  departmentId: string;
+  department?: string;
+  designation?: string;
+  joiningDate?: string;
   status: 'Active' | 'On Leave' | 'Inactive';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface EmployeePagination {

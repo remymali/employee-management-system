@@ -6,7 +6,7 @@ export interface IEmployee extends Document {
   lastName: string;
   email: string;
   phone: string;
-  department: string;
+  departmentId: string;
   designation: string;
   joiningDate: Date;
   status: "Active" | "On Leave" | "Inactive";
@@ -47,7 +47,7 @@ const employeeSchema = new Schema<IEmployee>(
       trim: true,
     },
 
-    department: {
+    departmentId: {
       type: String,
       required: true,
       trim: true,

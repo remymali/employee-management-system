@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   DatePicker,
@@ -9,6 +9,8 @@ import {
 } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 
+import { getDepartments } from '../../api/departmentApi';
+import type { Department } from '../../types/department';
 import type { Employee } from '../../types/employee';
 
 export type EmployeeFormValues = Omit<Employee, '_id' | 'joiningDate'> & {
@@ -23,6 +25,8 @@ interface EmployeeFormProps {
   onCancel: () => void;
 }
 
+
+
 const EmployeeForm = ({
   open,
   loading = false,
@@ -31,6 +35,8 @@ const EmployeeForm = ({
   onCancel,
 }: EmployeeFormProps) => {
   const [form] = Form.useForm();
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departmentsLoading, setDepartmentsLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -45,6 +51,24 @@ const EmployeeForm = ({
     }
   }, [open, employee, form]);
 
+  useEffect(() => {
+    if (!open) return;
+    const fetchDepartments = async () => {
+      setDepartmentsLoading(true);
+      try {
+        const response = await getDepartments();
+        console.log('Fetched departments###:', response);
+        if (response && response.departments) {
+          setDepartments(response.departments);
+        }
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+      } finally {
+        setDepartmentsLoading(false);
+      }
+    };
+    fetchDepartments();
+  }, [open]);
   return (
     <Modal
       title={employee ? 'Edit Employee' : 'Add Employee'}
@@ -132,7 +156,7 @@ const EmployeeForm = ({
 
         <Form.Item
           label="Department"
-          name="department"
+          name="departmentId"
           rules={[
             {
               required: true,
@@ -142,24 +166,11 @@ const EmployeeForm = ({
         >
           <Select
             placeholder="Select department"
-            options={[
-              {
-                value: 'Engineering',
-                label: 'Engineering',
-              },
-              {
-                value: 'HR',
-                label: 'HR',
-              },
-              {
-                value: 'Finance',
-                label: 'Finance',
-              },
-              {
-                value: 'Marketing',
-                label: 'Marketing',
-              },
-            ]}
+            loading={departmentsLoading}
+            options={departments.map((dept) => ({
+              value: dept.departmentId,
+              label: dept.name,
+            }))}
           />
         </Form.Item>
 

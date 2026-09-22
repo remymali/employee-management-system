@@ -1,4 +1,4 @@
-import React from "react";
+import React ,{useEffect ,useState}from "react";
 import { Typography, Spin, Button, message, Drawer } from "antd";
 
 import { useDepartments } from "../hooks/useDepartment";
@@ -12,9 +12,10 @@ import DepartmentFilters from "../components/Department/departmentFilter";
 const { Title } = Typography;
 
 const Departments: React.FC = () => {
-  const [searchText, setSearchText] = React.useState("");
-  const [debouncedSearchText, setDebouncedSearchText] = React.useState(searchText);
-  React.useEffect(() => {
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = 
+  useState(searchText);
+  useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchText(searchText);
     }, 300);
@@ -26,10 +27,10 @@ const Departments: React.FC = () => {
       setSearchText(value);
       setCurrentPage(1);
     }
-  // const [selectedDepartment, setSelectedDepartment] = React.useState<string | undefined>(undefined);
-  const [selectedStatus, setSelectedStatus] = React.useState<string | undefined>(undefined);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(10);
+  // const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
+  const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const {
     departments,
     loading,
@@ -39,9 +40,9 @@ const Departments: React.FC = () => {
     pagination,
   } = useDepartments({ page: currentPage, limit: pageSize, search: debouncedSearchText, status: selectedStatus || "Active" });
 // console.log("Departments data:", departments);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [editingDepartment, setEditingDepartment] = React.useState<Department | null>(null);
-  const[formLoading, setFormLoading] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
+  const[formLoading, setFormLoading] = useState(false);
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     setPageSize(pageSize || 10);
