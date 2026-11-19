@@ -8,7 +8,10 @@ export const register= async(req: Request, rest: Response)=>{
             return rest.status(400).json({success:false,message:"All fields are required"});
         }
         const newUser= await registerUser({userId,name,email,password,role});
-        return rest.status(201).json({success:true, message: "User registered successfully", user:newUser});
+        const userResponse= newUser.toObject();
+        delete userResponse.password;
+
+        return rest.status(201).json({success:true, message: "User registered successfully", user:userResponse});
     } catch (error) {
         const message= error instanceof Error ? error.message: "Registration failed"
         const statusCode= message==="User with this email already exists" ? 409 : 500;
@@ -30,4 +33,10 @@ catch (error) {
     const statusCode= message==="Invalid email or password" ? 401 : message==="User account is inactive" ? 403 : 500;
     return rest.status(statusCode).json({success:false, message});
 }
+}
+export const profile= async(req: Request, rest: Response)=>{
+    return rest.status(200).json({success:true, message:"Access granted to profile route"});
+}
+export const adminonly=async(req: Request, rest: Response)=>{
+    return rest.status(200).json({success:true, message:"Access granted to admin route"});
 }
